@@ -3,8 +3,6 @@
 import socket
 import time
 
-from utils.package import Package
-
 
 class RealRobotArm:
 
@@ -82,19 +80,22 @@ if __name__ == "__main__":
 
     time.sleep(2)
     # send joint angles
-    joint_angles = [0, -1.57, 0, 0, 0, 0]  # upright position
-    robot.send_joint_command(joint_angles)
+    # joint_angles = [0, -1.57, 0, 0, 0, 0]  # upright position
+    # robot.send_joint_command(joint_angles)
+    # time.sleep(10)
+    # joint_angles = [1.687717, -4.025435, 1.995151, -0.283635, -0.172103, 0.75058]
+    # robot.send_joint_command(joint_angles)
     # robot.send_gripper_command(150)
     # time.sleep(5)
-    # joint_angles = [
-    #     deg_to_rad(74.5),
-    #     deg_to_rad(-28),
-    #     deg_to_rad(31),
-    #     deg_to_rad(-97),
-    #     deg_to_rad(-87.5),
-    #     deg_to_rad(167),
-    # ]
-    # robot.send_joint_command(joint_angles)
+    joint_angles = [
+        deg_to_rad(74.5),
+        deg_to_rad(-28),
+        deg_to_rad(31),
+        deg_to_rad(-97),
+        deg_to_rad(-87.5),
+        deg_to_rad(167),
+    ]
+    robot.send_joint_command(joint_angles)
     # time.sleep(5)
     # robot.send_gripper_command(200)
     # time.sleep(1)
