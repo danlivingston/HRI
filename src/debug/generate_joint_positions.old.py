@@ -1,7 +1,7 @@
 import json
 from time import sleep
 
-from utils.robot_arm import RobotArm
+from robot.robbot_arm_controller import RobotArm
 
 board = {
     "upright": [0, -1.57, 0, 0, 0, 0],
@@ -44,16 +44,16 @@ if __name__ == "__main__":
                     "pickup": calc_inverse_kinematic_xy(pickup),
                     "place": calc_inverse_kinematic_xy(place),
                 }
-                robot.send_joint_command(positions[coord]["hover"])
+                robot.send_move_command(positions[coord]["hover"])
                 sleep(1)
         return positions
 
-    robot.send_joint_command(board["hover"], mode="j")
+    robot.send_move_command(board["hover"], mode="j")
     sleep(5)
     board_positions = generate_board_positions()
     # board["hover"] = calc_inverse_kinematic_xy(board["hover"])
     board.update(board_positions)
-    robot.send_joint_command(board["upright"], mode="j")
+    robot.send_move_command(board["upright"], mode="j")
     sleep(5)
 
     with open("board_positions.json", "w") as f:

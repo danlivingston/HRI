@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from loguru import logger
 
 from helloworld import say_hello
+from robot.robbot_arm_controller import RobotArm
 from utils import configure_logger
-from utils.robot_arm import RobotArm
 
 # pickup_height = 0.1675
 # hover_height = 0.18
@@ -39,71 +39,71 @@ if __name__ == "__main__":
     # sleep(5)
 
     inverse = robot.get_inverse_kinematics(zero_point_h)
-    robot.send_joint_command(inverse, mode="j")
+    robot.send_move_command(inverse, mode="j")
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(zero_point)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     robot.close_gripper()
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(zero_point_h)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(transition_point)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(one_point_h)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(one_point_p)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     robot.open_gripper()
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(transition_point)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(one_point_h)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(one_point)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     robot.close_gripper()
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(one_point_h)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(transition_point)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(zero_point_h)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(zero_point)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     robot.open_gripper()
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(transition_point)
-    robot.send_joint_command(inverse)
+    robot.send_move_command(inverse)
     sleep(1)
 
     # robot.start_pos()
