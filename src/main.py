@@ -1,12 +1,11 @@
+from time import sleep
+
 from dotenv import load_dotenv
 from loguru import logger
 
 from helloworld import say_hello
 from utils import configure_logger
-
 from utils.robot_arm import RobotArm
-
-from time import sleep
 
 # pickup_height = 0.1675
 # hover_height = 0.18
@@ -18,7 +17,7 @@ transition_point = [0, -0.35, 0.4, 0, -3.14, 0]  # center
 
 
 one_point = [-0.128, -0.48, 0.1675, 0, -3.14, 0]
-one_point_p = [-0.128, -0.48, 0.18, 0, -3.14, 0]
+one_point_p = [-0.128, -0.48, 0.17, 0, -3.14, 0]
 one_point_h = [-0.128, -0.48, 0.2, 0, -3.14, 0]
 
 load_dotenv()
@@ -29,15 +28,18 @@ if __name__ == "__main__":
     say_hello()
 
     ###################################3
-
     robot = RobotArm()
     sleep(1)
 
     robot.open_gripper()
     sleep(1)
+    # robot.start_pos()
+    # sleep(5)
+    # robot.send_joint_command([0.125, -0.23, 0.1675, 0, -3.14, 0], "j")
+    # sleep(5)
 
     inverse = robot.get_inverse_kinematics(zero_point_h)
-    robot.send_joint_command(inverse)
+    robot.send_joint_command(inverse, mode="j")
     sleep(1)
 
     inverse = robot.get_inverse_kinematics(zero_point)
