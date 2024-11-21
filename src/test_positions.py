@@ -1,7 +1,7 @@
 import json
 from time import sleep
 
-from robot.robbot_arm_controller import RobotArm
+from robot.robot_arm_controller import RobotArm
 
 board_positions = None
 with open("board_positions.json", "r") as file:
@@ -17,71 +17,102 @@ for row in range(1, 9):
             positions.append(f"{col}{row}")
 
 
-def move(commands):
-    for command in commands:
-        if isinstance(command, list):
-            pos, action = command
-            bpos = board_positions[pos][action]
-            print(f"Move to {pos} {action}")
-            robot.send_move_command(bpos["values"], mode="j", pose=bpos["pose"])
-        else:
-            print(f"Move to {command}")
-            bpos = board_positions[command]
-            robot.send_move_command(bpos["values"], mode="j", pose=bpos["pose"])
+def move(board_path: list, mode="l"):
+    pos_base = board_positions
+    for path in board_path:
+        try:
+            pos_base = pos_base[path]
+        except KeyError:
+            print(f"Key Not Found {path}")
+            return
+    pos_values = pos_base["values"]
+    pos_is_pose = pos_base["pose"]
+    robot.send_move_command(pos_values, mode=mode, pose=pos_is_pose)
 
 
 if __name__ == "__main__":
     robot = RobotArm()
-    print("Move upright (j)")
-    robot.send_move_command(board_positions["upright"]["values"], mode="j")
+
+    # robot.send_move_command([-0.125, -0.4775, 0.1675, 0, -3.14, 0], mode="j", pose=True)
+    # # sleep(3)
+    # robot.send_move_command([0.122, -0.2275, 0.17, 0, -3.14, 0], mode="j", pose=True)
+    # move(["discard"], "j")
+    # move(["discard"], "j")
+    # exit()
+
+    print("Move upright")
+    move(["upright"], "j")
     sleep(5)
 
-    print("Move hover (j)")
-    robot.send_move_command(board_positions["hover"]["values"], mode="j")
-    sleep(5)
+    print("Move init")
+    move(["init"], "j")
+    sleep(3)
+
+    print("Move hover")
+    move(["hover"], "l")
+    sleep(2)
+
+    # print("Move discard")
+    # move(["discard"], "l")
+    # sleep(3)
+
+    # print("Move hover")
+    # move(["hover"], "l")
+    # sleep(3)
 
     robot.open_gripper()
     sleep(1)
 
-    print("Move A1 pos (j)")
-    robot.send_move_command(board_positions[positions[0]]["hover"], mode="j")
+    print("Move A1 pos")
+    move(["A1", "hover"])
     sleep(3)
 
-    print("Move H8 pos (j)")
-    robot.send_move_command(board_positions[positions[63]]["hover"], mode="j")
-    sleep(3)
+    # print("Move H8 pos")
+    # move(["H8", "hover"])
+    # sleep(3)
 
-    print("Move hover (l)")
-    robot.send_move_command(board_positions["hover"], mode="l")
-    sleep(5)
+    # print("Move hover")
+    # move(["hover"])
+    # sleep(5)
 
-    print("Move to first hover (j)")
-    robot.send_move_command(board_positions[positions[0]]["hover"], mode="j")
-    sleep(3)
+    # print("Move to first hover")
+    # move(["A1", "hover"])
+    # sleep(3)
 
     for pos in positions:
-        print(f"Move to {pos} hover (j)")
-        robot.send_move_command(board_positions[pos]["hover"], mode="j")
-        sleep(1)
+        print(f"Move to {pos} hover")
+        move([pos, "hover"])
+        sleep(0.5)
 
-        print(f"Move to {pos} pickup (l)")
-        robot.send_move_command(board_positions[pos]["pickup"], mode="l")
-        sleep(1)
+        print(f"Move to {pos} pickup")
+        move([pos, "pickup"])
+        sleep(0.5)
 
         robot.close_gripper()
-        sleep(1)
+        sleep(0.5)
 
-        print(f"Move to {pos} hover (l)")
-        robot.send_move_command(board_positions[pos]["hover"], mode="l")
-        sleep(1)
+        print(f"Move to {pos} hover")
+        move([pos, "hover"])
+        sleep(0.5)
 
-        print(f"Move to {pos} place (l)")
-        robot.send_move_command(board_positions[pos]["place"], mode="l")
-        sleep(1)
+        # # ! DISCARD
 
+        # move(["discard"])
+        # sleep(2)
+
+        # robot.open_gripper()
+        # sleep(0.5)
+
+        # # ! /DISCARD
+
+        print(f"Move to {pos} place")
+        move([pos, "place"])
+        sleep(0.5)
+
+        robot.half_open_gripper()
+        sleep(0.5)
+
+        print(f"Move to {pos} hover")
+        move([pos, "hover"])
         robot.open_gripper()
-        sleep(1)
-
-        print(f"Move to {pos} hover (l)")
-        robot.send_move_command(board_positions[pos]["hover"], mode="l")
-        sleep(1)
+        sleep(0.5)

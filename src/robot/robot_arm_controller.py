@@ -4,6 +4,8 @@ import socket
 
 from utils.ip import get_ip
 
+from loguru import logger
+
 
 class RobotArm:
     def __init__(self):
@@ -37,17 +39,22 @@ class RobotArm:
         self.send_move_command(joint_angles, "j")
 
     def open_gripper(self):
-        self.send_gripper_command(150)
+        self.send_gripper_command(153)
+
+    def half_open_gripper(self):
+        self.send_gripper_command(180)
 
     def close_gripper(self):
-        self.send_gripper_command(200)
+        self.send_gripper_command(185)
 
     def send_move_command(self, values, mode="j", pose=False):
         values = ", ".join(
-            ["{:.2f}".format(i) if type(i) is float else str(i) for i in values]
+            ["{:.4f}".format(i) if type(i) is float else str(i) for i in values]
         )
         prefix = "p" if pose else ""
-        self.socket_ur.send(str.encode(f"move{mode}({prefix}[{values}])\n"))
+        cmd = str.encode(f"move{mode}({prefix}[{values}])\n")
+        self.socket_ur.send(cmd)
+        logger.debug(f"sent command: {cmd}")
 
     def send_gripper_command(self, value):
         if value >= 0 and value <= 255:

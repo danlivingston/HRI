@@ -24,6 +24,12 @@ hover_x_positions.append(board_hover_values[0])
 hover_y_positions.append(board_hover_values[1])
 hover_z_positions.append(board_hover_values[2])
 
+board_discard_values = board_positions["discard"]["values"]
+place_x_positions.append(board_discard_values[0])
+place_y_positions.append(board_discard_values[1])
+place_z_positions.append(board_discard_values[2])
+
+
 for pos in board_positions.values():
     try:
         hover_values = pos["hover"]["values"]
@@ -85,10 +91,30 @@ ax.scatter(
     marker="^",
     label="Place",
 )
+# Calculate the limits for each axis
+x_limits = ax.get_xlim3d()
+y_limits = ax.get_ylim3d()
+z_limits = ax.get_zlim3d()
+
+# Find the maximum range
+max_range = max(
+    x_limits[1] - x_limits[0], y_limits[1] - y_limits[0], z_limits[1] - z_limits[0]
+)
+
+# Set the limits for each axis to be the same
+ax.set_xlim3d([x_limits[0], x_limits[0] + max_range])
+ax.set_ylim3d([y_limits[0], y_limits[0] + max_range])
+ax.set_zlim3d([z_limits[0], z_limits[0] + max_range])
+
+# Set the aspect ratio to be equal
+ax.set_box_aspect([1, 1, 1])  # Aspect ratio is 1:1:1
+
+# Set the title and labels
 ax.set_title("Board Positions (3D)")
 ax.set_xlabel("X Position")
 ax.set_ylabel("Y Position")
 ax.set_zlabel("Z Position")
 ax.legend()
-ax.set_box_aspect([1, 1, 1])  # Aspect ratio is 1:1:1
+
+# Show the plot
 plt.show()

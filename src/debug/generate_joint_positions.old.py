@@ -1,7 +1,7 @@
 import json
 from time import sleep
 
-from robot.robbot_arm_controller import RobotArm
+from robot.robot_arm_controller import RobotArm
 
 board = {
     "upright": [0, -1.57, 0, 0, 0, 0],
