@@ -1,26 +1,28 @@
 import json
 
-board = {
-    "upright": {"pose": False, "values": [0, -1.57, 0, 0, 0, 0]},
-    "init": {
-        "pose": False,
-        "values": [1.57, -1.57, 1.57, -1.57, -1.57, 0],
-    },
-    "hover": {"pose": True, "values": [None, None, 0.4, 0, -3.14, 0]},  # None -> Center
-    "discard": {
-        "pose": True,
-        "values": [None, None, 0.3, 0, -3.14, 0],
-    },  # None -> Center + Offset
-}
 piece_hover_height = 0.2
 piece_pickup_height = 0.1675
 piece_place_height = 0.17
 A1_ref = [-0.125, -0.4775, None, 0, -3.14, 0]  # None -> Height
 H8_ref = [0.122, -0.2275, None, 0, -3.14, 0]  # None -> Height
+center_x = (A1_ref[0] + H8_ref[0]) / 2
+center_y = (A1_ref[1] + H8_ref[1]) / 2
 
 ranks = ["1", "2", "3", "4", "5", "6", "7", "8"]
 files = ["A", "B", "C", "D", "E", "F", "G", "H"]
 
+board = {
+    "upright": {"pose": False, "values": [0, -1.57, 0, 0, 0, 0]},
+    "init": {"pose": False, "values": [1.57, -1.57, 1.57, -1.57, -1.57, 0]},
+    "hover": {"pose": True, "values": [center_x, center_y, 0.4, 0, -3.14, 0]},
+    "discard": {"pose": True, "values": [center_x - 0.3, center_y, 0.2, 0, -3.14, 0]},
+    # Emotions
+    "watch_board": {
+        "pose": True,
+        "values": [center_x, center_y, 0.4, 0, -3.14, 0],
+    },
+    "watch_player": {"pose": True, "values": [center_x, center_y, 0.4, 1.57, 0, 0]},
+}
 
 if __name__ == "__main__":
 

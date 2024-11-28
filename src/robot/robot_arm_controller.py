@@ -2,9 +2,9 @@
 
 import socket
 
-from utils.ip import get_ip
-
 from loguru import logger
+
+from utils.ip import get_ip
 
 
 class RobotArm:
@@ -34,9 +34,9 @@ class RobotArm:
         # activate the gripper
         self.socket_gripper.sendall(b"SET ACT 1\n")
 
-    def assume_start_pos(self):
-        joint_angles = [0, -1.57, 0, 0, 0, 0]  # upright position
-        self.send_move_command(joint_angles, "j")
+    # def assume_start_pos(self):
+    #     joint_angles = [0, -1.57, 0, 0, 0, 0]  # upright position
+    #     self.send_move_command(joint_angles, "j")
 
     def open_gripper(self):
         self.send_gripper_command(153)
@@ -52,7 +52,8 @@ class RobotArm:
             ["{:.4f}".format(i) if type(i) is float else str(i) for i in values]
         )
         prefix = "p" if pose else ""
-        cmd = str.encode(f"move{mode}({prefix}[{values}])\n")
+        # TODO: change time and acceleration
+        cmd = str.encode(f"move{mode}({prefix}[{values}],a=0.25,t=3)\n")
         self.socket_ur.send(cmd)
         logger.debug(f"sent command: {cmd}")
 
@@ -63,6 +64,11 @@ class RobotArm:
             # make the gripper move
             self.socket_gripper.send(b"SET GTO 1\n")
 
+    def rotate_gripper_90deg(self):
+        cmd = str.encode(f"speedj([0,0,0,0,0,3.14],3,1)\n")
+        self.socket_ur.send(cmd)
+        logger.debug(f"sent command: {cmd}")
+
     def set_gripper_speed(self):
         pass
 
@@ -70,43 +76,3 @@ class RobotArm:
         self.socket_ur.close()
         self.socket_gripper.close()
         self.server_socket.close()
-
-    def get_inverse_kinematics(self, pose):
-        values = ", ".join(
-            ["{:.2f}".format(i) if type(i) is float else str(i) for i in pose]
-        )
-
-        command = (
-            """
-        desired_pose = p["""
-            + values
-            + ''']
-        joints = get_inverse_kin(desired_pose)
-        socket_open("'''
-            + self.ip
-            + """", 30003)
-        socket_send_string(to_str(joints))
-        socket_close()
-        """
-        )
-
-        full_command = f"def my_prog():\n{command}\nend\n"
-        try:
-            self.socket_ur.sendall(full_command.encode("utf-8"))
-            print(f"Sent URScript command: {full_command}")
-        except socket.error as e:
-            print(f"Socket error: {e}")
-
-        print("Waiting for connection from the robot...")
-        conn, addr = self.server_socket.accept()
-        print(f"Connection from {addr}")
-
-        try:
-            data = conn.recv(1024).decode()
-            print(f"Received Inverse Kinematics: {data}")
-
-            joint_angles = [float(angle) for angle in data.strip("[]").split(",")]
-
-            return joint_angles
-        finally:
-            conn.close()
