@@ -1,8 +1,8 @@
+import asyncio
 import json
-from time import sleep, time
+from time import sleep  # TODO: replace with asyncio.sleep()?
 
 from loguru import logger
-import asyncio
 
 from robot.emotions import Emotions
 from robot.robot_arm_controller import RobotArm

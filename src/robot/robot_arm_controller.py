@@ -47,13 +47,12 @@ class RobotArm:
     def close_gripper(self):
         self.send_gripper_command(185)
 
-    def send_move_command(self, values, mode="j", pose=False):
+    def send_move_command(self, values, mode="j", pose=False, t=2, a=0.25):
         values = ", ".join(
             ["{:.4f}".format(i) if type(i) is float else str(i) for i in values]
         )
         prefix = "p" if pose else ""
-        # TODO: change time and acceleration
-        cmd = str.encode(f"move{mode}({prefix}[{values}],a=0.25,t=2)\n")
+        cmd = str.encode(f"move{mode}({prefix}[{values}],a={a},t={t})\n")
         self.socket_ur.send(cmd)
         logger.debug(f"sent command: {cmd}")
 
@@ -65,7 +64,7 @@ class RobotArm:
             self.socket_gripper.send(b"SET GTO 1\n")
 
     def rotate_gripper_90deg(self):
-        cmd = str.encode(f"speedj([0,0,0,0,0,3.14],3,1)\n")
+        cmd = str.encode("speedj([0,0,0,0,0,3.14],3,1)\n")
         self.socket_ur.send(cmd)
         logger.debug(f"sent command: {cmd}")
 
