@@ -1,7 +1,7 @@
 # settings.yaml
 
 # Camera settings
-camera_id: 1
+camera_id: 2
 camera_width: 1920
 camera_height: 1080
 
@@ -9,12 +9,12 @@ camera_height: 1080
 cube_detection:
   blue:
     rgb_ranges:
-    - lower: [105, 0, 0]
-      upper: [255, 155, 40]
+      - lower: [100, 0, 0]
+        upper: [255, 170, 55]
   brown:
     rgb_ranges:
-    - lower: [0, 0, 140]
-      upper: [100, 130, 255]
+      - lower: [0, 0, 170]
+        upper: [85, 255, 255]
 
 thresholds:
   cube_area_min: 350
@@ -22,10 +22,10 @@ thresholds:
   cube_height_min: 10
 
 orderpoints:
-- [710, 355]
-- [665, 731]
-- [1278, 707]
-- [1178, 343]
+  - [710, 355]
+  - [665, 731]
+  - [1278, 707]
+  - [1178, 343]
 
 # Chessboard settings
 chessboard_size: [8, 8]
@@ -37,20 +37,20 @@ initialization_frames: 30
 
 # Points for chessboard processing
 chessboard_points:
-- - 772
-  - 367
-- - 1204
-  - 359
-- - 1284
-  - 718
-- - 741
-  - 733
+  - - 772
+    - 367
+  - - 1204
+    - 359
+  - - 1284
+    - 718
+  - - 741
+    - 733
 obstacle_detection_points:
-- - 767
-  - 302
-- - 1197
-  - 289
-- - 1321
-  - 831
-- - 718
-  - 849
+  - - 767
+    - 302
+  - - 1197
+    - 289
+  - - 1321
+    - 831
+  - - 718
+    - 849

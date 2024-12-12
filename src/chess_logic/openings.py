@@ -1,4 +1,4 @@
-from opening_line import OpeningLine
+from chess_logic.opening_line import OpeningLine
 
 openings = [
     OpeningLine(
@@ -52,6 +52,6 @@ openings = [
             "f3e5",
             "f6d7",
             "f2f4",
-        ]
+        ],
     )
 ]

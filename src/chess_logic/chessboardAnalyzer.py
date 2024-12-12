@@ -7,12 +7,14 @@ from typing import Optional, Dict, Any, Tuple, List
 
 import yaml
 
-from chess_cube_processor import ChessCubeProcessor
-from modules.compare_move import compare_cube_positions_new_and_missing
+from chess_logic.chess_cube_processor import ChessCubeProcessor
+from computer_vision.compare_move import compare_cube_positions_new_and_missing
 
 
 class ChessCubeAnalyzer(threading.Thread):
-    def __init__(self, config_path: str = None, debug: bool = False, camera_index: int = 1):
+    def __init__(
+        self, config_path: str = None, debug: bool = False, camera_index: int = 1
+    ):
         super().__init__()
         self.daemon = True  # Allows thread to be killed when main thread exits
 
@@ -21,7 +23,9 @@ class ChessCubeAnalyzer(threading.Thread):
 
         # Determine the path to the configuration file
         if config_path is None:
-            config_path = os.path.join(os.path.dirname(__file__), '..', 'resources', 'config', 'settings.yaml')
+            config_path = os.path.join(
+                os.path.dirname(__file__), "..", "resources", "config", "settings.yaml"
+            )
         else:
             if not os.path.isabs(config_path):
                 config_path = os.path.join(os.path.dirname(__file__), config_path)
@@ -33,25 +37,31 @@ class ChessCubeAnalyzer(threading.Thread):
         self.config = self.load_config(config_path)
 
         # Define quadrilateral points from config
-        self.chessboard_points = [tuple(point) for point in self.config.get('chessboard_points', [])]
-        self.obstacle_detection_points = [tuple(point) for point in self.config.get('obstacle_detection_points', [])]
+        self.chessboard_points = [
+            tuple(point) for point in self.config.get("chessboard_points", [])
+        ]
+        self.obstacle_detection_points = [
+            tuple(point) for point in self.config.get("obstacle_detection_points", [])
+        ]
 
         # Initialize ChessCubeProcessor
         self.processor = ChessCubeProcessor(
             config_path=config_path,
             debug=debug,
             chessboard_points=self.chessboard_points,
-            obstacle_detection_points=self.obstacle_detection_points
+            obstacle_detection_points=self.obstacle_detection_points,
         )
 
         # Initialize webcam
-        self.camera_index = self.config.get('camera_id', camera_index)
+        self.camera_index = self.config.get("camera_id", camera_index)
         self.cap = cv2.VideoCapture(self.camera_index)
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.get('camera_width', 1920))
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.get('camera_height', 1080))
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.get("camera_width", 1920))
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.get("camera_height", 1080))
 
         if not self.cap.isOpened():
-            self.logger.error(f"Error: Could not open webcam with index {self.camera_index}.")
+            self.logger.error(
+                f"Error: Could not open webcam with index {self.camera_index}."
+            )
             raise IOError(f"Cannot open webcam with index {self.camera_index}.")
 
         self.logger.info("Webcam opened successfully.")
@@ -80,14 +90,18 @@ class ChessCubeAnalyzer(threading.Thread):
         self.obstacle_present = False  # <--- Added flag
 
         # Start the obstacle detection thread
-        self.obstacle_thread = threading.Thread(target=self.run_obstacle_detection, daemon=True)
+        self.obstacle_thread = threading.Thread(
+            target=self.run_obstacle_detection, daemon=True
+        )
         self.obstacle_thread.start()
 
     @staticmethod
     def load_config(config_path: str) -> Dict[str, Any]:
-        with open(config_path, 'r') as file:
+        with open(config_path, "r") as file:
             config = yaml.safe_load(file)
-        logging.getLogger('ChessCubeAnalyzer').debug(f"Configuration loaded from {config_path}.")
+        logging.getLogger("ChessCubeAnalyzer").debug(
+            f"Configuration loaded from {config_path}."
+        )
         return config
 
     def initialize_camera(self):
@@ -100,13 +114,17 @@ class ChessCubeAnalyzer(threading.Thread):
         while time.time() - start_time < 5:
             ret, frame = self.cap.read()
             if not ret:
-                self.logger.warning("Failed to read frame during camera initialization.")
+                self.logger.warning(
+                    "Failed to read frame during camera initialization."
+                )
                 continue
 
             # Optionally, show the frame to observe progress (can be disabled)
             if self.processor.debug:
                 cv2.imshow("Initializing Camera", frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):  # Allow exiting during initialization
+                if cv2.waitKey(1) & 0xFF == ord(
+                    "q"
+                ):  # Allow exiting during initialization
                     self.logger.info("Exiting camera initialization.")
                     break
 
@@ -148,25 +166,33 @@ class ChessCubeAnalyzer(threading.Thread):
         """
         with self.lock:
             if self.obstacle_present:  # <--- Check obstacle flag
-                self.logger.warning("Cannot perform initial capture: Obstacle detected.")
+                self.logger.warning(
+                    "Cannot perform initial capture: Obstacle detected."
+                )
                 return "obstacle detected"
 
         with self.lock:
             ret, frame = self.cap.read()
             if not ret:
-                self.logger.error("Error: Failed to capture image from webcam during initial capture.")
+                self.logger.error(
+                    "Error: Failed to capture image from webcam during initial capture."
+                )
                 return None
 
             timestamp = time.strftime("%Y%m%d-%H%M%S")
             image_name = f"initial_frame_{timestamp}.jpg"
 
-            obstacle_detected, initial_positions = self.processor.process_image(frame, image_name)
+            obstacle_detected, initial_positions = self.processor.process_image(
+                frame, image_name
+            )
             if obstacle_detected:
                 self.logger.warning("Obstacle detected during initial capture.")
                 return "obstacle detected"
 
             if initial_positions is None:
-                self.logger.info(f"No cubes detected in {image_name} during initial capture.")
+                self.logger.info(
+                    f"No cubes detected in {image_name} during initial capture."
+                )
                 return "No cubes detected during initial capture."
 
             self.initial_positions = initial_positions
@@ -186,19 +212,25 @@ class ChessCubeAnalyzer(threading.Thread):
         with self.lock:
             ret, frame = self.cap.read()
             if not ret:
-                self.logger.error("Error: Failed to capture image from webcam during update.")
+                self.logger.error(
+                    "Error: Failed to capture image from webcam during update."
+                )
                 return None
 
             timestamp = time.strftime("%Y%m%d-%H%M%S")
             image_name = f"update_frame_{timestamp}.jpg"
 
-            obstacle_detected, updated_positions = self.processor.process_image(frame, image_name)
+            obstacle_detected, updated_positions = self.processor.process_image(
+                frame, image_name
+            )
             if obstacle_detected:
                 self.logger.warning("Obstacle detected during update capture.")
                 return "obstacle detected"
 
             if updated_positions is None:
-                self.logger.info(f"No cubes detected in {image_name} during update capture.")
+                self.logger.info(
+                    f"No cubes detected in {image_name} during update capture."
+                )
                 return "No cubes detected during update capture."
 
             self.updated_positions = updated_positions
@@ -217,29 +249,43 @@ class ChessCubeAnalyzer(threading.Thread):
                 return "obstacle detected"
 
             if not self.initial_positions:
-                self.logger.warning("Initial positions not set. Please run 'initial()' first.")
+                self.logger.warning(
+                    "Initial positions not set. Please run 'initial()' first."
+                )
                 return "initial positions not set"
 
             if not self.updated_positions:
-                self.logger.warning("Updated positions not set. Please run 'update()' first.")
+                self.logger.warning(
+                    "Updated positions not set. Please run 'update()' first."
+                )
                 return "updated positions not set"
 
-            movements = compare_cube_positions_new_and_missing(self.initial_positions, self.updated_positions)
+            movements = compare_cube_positions_new_and_missing(
+                self.initial_positions, self.updated_positions
+            )
 
             movement_strings = []
-            movement_targets = set()  # To track movement targets and prevent redundant removals
+            movement_targets = (
+                set()
+            )  # To track movement targets and prevent redundant removals
 
             for from_position, to_position in movements:
                 if from_position and to_position:
                     if from_position != to_position:
                         # Movement from one position to another
-                        movement_description = f"Cube moved from {from_position} to {to_position}"
-                        movement_string = f"{from_position.lower()}{to_position.lower()}"
+                        movement_description = (
+                            f"Cube moved from {from_position} to {to_position}"
+                        )
+                        movement_string = (
+                            f"{from_position.lower()}{to_position.lower()}"
+                        )
                         movement_strings.append(movement_string)
                         movement_targets.add(to_position)
                     else:
                         # Capture or replacement at the same position
-                        movement_description = f"Cube at {from_position} was captured and replaced"
+                        movement_description = (
+                            f"Cube at {from_position} was captured and replaced"
+                        )
                         movement_string = f"{from_position.lower()}captured"
                         movement_strings.append(movement_string)
                 elif from_position:
@@ -264,7 +310,11 @@ class ChessCubeAnalyzer(threading.Thread):
             self.logger.info("Cube positions updated after comparison.")
 
             # Return only valid movement strings (excluding removals if they are movement targets)
-            return ', '.join(movement_strings) if movement_strings else "No movement detected."
+            return (
+                ", ".join(movement_strings)
+                if movement_strings
+                else "No movement detected."
+            )
 
     def run(self):
         """

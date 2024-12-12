@@ -1,24 +1,24 @@
 import threading
 
 import chess
-from speaker import Speaker
+from chess_logic.speaker import Speaker
 import chess.pgn
 import chess.svg
-from openings import openings
+from chess_logic.openings import openings
 import random
-from voice_recognizer import VoiceRecognizer
-from chessboardAnalyzer import ChessCubeAnalyzer
+from chess_logic.voice_recognizer import VoiceRecognizer
+from chess_logic.chessboardAnalyzer import ChessCubeAnalyzer
 import time
 
 
 class Game:
     PIECE_NAMES = {
-        'K': 'King',
-        'Q': 'Queen',
-        'R': 'Rook',
-        'B': 'Bishop',
-        'N': 'Knight',
-        'P': 'Pawn'
+        "K": "King",
+        "Q": "Queen",
+        "R": "Rook",
+        "B": "Bishop",
+        "N": "Knight",
+        "P": "Pawn",
     }
 
     def __init__(self):
@@ -27,8 +27,9 @@ class Game:
         self.opening_line = random.choice(openings)
         self.voice_recognizer = VoiceRecognizer()
         self.is_listening_for_help = False
-        self.chessboard_analyzer = ChessCubeAnalyzer(config_path=r'../resources/config/settings.yaml', debug=False)
-        self.chessboard_analyzer.initial()
+        self.chessboard_analyzer = ChessCubeAnalyzer(
+            config_path=r"../resources/config/settings.yaml", debug=True
+        )
 
     def update_board(self, move):
         try:
@@ -47,7 +48,9 @@ class Game:
     def save_board_as_svg(self, filename="chess_board.svg"):
         with open(filename, "w") as f:
             f.write(chess.svg.board(board=self.board))
-        print(f"Das Schachbrett wurde als {filename} gespeichert. Öffnen Sie die Datei, um es anzusehen.")
+        print(
+            f"Das Schachbrett wurde als {filename} gespeichert. Öffnen Sie die Datei, um es anzusehen."
+        )
 
     def expand_san(self, san_move):
         if san_move[0] in Game.PIECE_NAMES:
@@ -81,8 +84,12 @@ class Game:
 
     def get_move_input(self, is_white):
         if is_white:
-            correct_move = self.opening_line.moves_uci[self.opening_line.current_move_index]
-            input_hint = "Weisser Zug (Schachnotation z.B. e2e4) oder 'help' für einen Tipp: "
+            correct_move = self.opening_line.moves_uci[
+                self.opening_line.current_move_index
+            ]
+            input_hint = (
+                "Weisser Zug (Schachnotation z.B. e2e4) oder 'help' für einen Tipp: "
+            )
 
             # Thread einmalig vor der Schleife starten
             self.is_listening_for_help = True
@@ -90,7 +97,7 @@ class Game:
             t1.start()
 
             while True:
-                #user_input = input(input_hint).lower()
+                # user_input = input(input_hint).lower()
                 user_input = self.analyze_player_move_from_camera()
 
                 if user_input == correct_move:
@@ -100,10 +107,14 @@ class Game:
                     return user_input  # gültiger, erwarteter Zug wird zurückgegeben
                 else:
                     print("Das ist nicht der richtige Zug. Versuche es erneut.")
-                    self.speaker.speak("That's not the correct move. Try again or ask for help.")
+                    self.speaker.speak(
+                        "That's not the correct move. Try again or ask for help."
+                    )
         else:
             # Automatischer Zug für Schwarz
-            black_move = self.opening_line.moves_uci[self.opening_line.current_move_index]
+            black_move = self.opening_line.moves_uci[
+                self.opening_line.current_move_index
+            ]
             print(f"Schwarzer Zug: {black_move}")
             return black_move
 
@@ -125,25 +136,29 @@ class Game:
         has_moved = False
 
         while not has_moved:
+            time.sleep(5)
             self.chessboard_analyzer.update()
             movement = self.chessboard_analyzer.compareMove()
 
             if movement == "obstacle detected":
                 print("Obstacle detected. Cannot compare moves.")
             elif movement == "initial positions not set":
-                print("Initial positions not set. Please set initial positions first by pressing 'i'.")
+                print(
+                    "Initial positions not set. Please set initial positions first by pressing 'i'."
+                )
             elif movement == "updated positions not set":
-                print("Updated positions not set. Please update positions first by pressing 'u'.")
+                print(
+                    "Updated positions not set. Please update positions first by pressing 'u'."
+                )
             elif movement:
                 print(f"Movement detected: {movement}")
                 has_moved = True
-
-            time.sleep(5)
 
         return movement
 
     def play(self):
         self.print_board_and_save_svg()
+        self.chessboard_analyzer.initial()
 
         while not self.board.is_game_over():
             if self.board.is_game_over():
@@ -163,9 +178,10 @@ class Game:
             # Schwarzer Zug - automatisch aus der Eröffnungssequenz
             black_move = self.get_move_input(is_white=False)
             if not self.update_board(black_move):
-                print("Automatischer schwarzer Zug war ungültig.")  # Sollte theoretisch nicht passieren
+                print(
+                    "Automatischer schwarzer Zug war ungültig."
+                )  # Sollte theoretisch nicht passieren
             self.print_board_and_save_svg()
             self.opening_line.increment_move_index()  # Fortschritt in der Eröffnungslinie
 
         self.print_result()
-

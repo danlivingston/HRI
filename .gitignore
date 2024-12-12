@@ -161,3 +161,7 @@ cython_debug/
 
 # macOS
 .DS_Store
+/annotated_images
+chess_board.svg
+/debug_images
+/preprocessed_images

@@ -20,12 +20,18 @@ class VoiceRecognizer:
                         speaker.speak("I understand, game is started")
                         return True
                     else:
-                        speaker.speak("I did not understand you. Please repeat yourself.")
+                        speaker.speak(
+                            "I did not understand you. Please repeat yourself."
+                        )
 
                 except sr.UnknownValueError:
-                    print("Google Speech Recognition could not understand audio. Please try again.")
+                    print(
+                        "Google Speech Recognition could not understand audio. Please try again."
+                    )
                 except sr.RequestError as e:
-                    print(f"Could not request results from Google Speech Recognition service; {e}")
+                    print(
+                        f"Could not request results from Google Speech Recognition service; {e}"
+                    )
 
     def listen_for_help(self, speaker):
         with sr.Microphone() as source:
@@ -42,6 +48,10 @@ class VoiceRecognizer:
                     speaker.speak("I did not understand you. Please repeat yourself")
 
             except sr.UnknownValueError:
-                print("Google Speech Recognition could not understand audio. Please try again.")
+                print(
+                    "Google Speech Recognition could not understand audio. Please try again."
+                )
             except sr.RequestError as e:
-                print(f"Could not request results from Google Speech Recognition service; {e}")
+                print(
+                    f"Could not request results from Google Speech Recognition service; {e}"
+                )
