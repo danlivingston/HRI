@@ -8,4 +8,3 @@ class Emotions(Enum):
     DISCARD = "discard"
     WATCH_BOARD = "watch_board"
     WATCH_PLAYER = "watch_player"
-    # TODO: Define emotions and implement them

@@ -2,6 +2,7 @@ import json
 from time import sleep, time
 
 from loguru import logger
+import asyncio
 
 from robot.emotions import Emotions
 from robot.robot_arm_controller import RobotArm
@@ -11,6 +12,8 @@ with open("board_positions.json", "r") as file:
 
 
 class RobotController:
+    speak = False
+
     def __init__(self):
         logger.info("Initializing RobotController")
         self.robot = RobotArm()
@@ -47,20 +50,28 @@ class RobotController:
 
         logger.info(f"Robot is assuming the emotion: {emotion.value}")
         self.move([emotion.value], mode)
-        # sleep(3)
-        # if emotion is Emotions.WATCH_PLAYER or emotion is Emotions.WATCH_BOARD:
-        #     # TODO: remove and replace with pose in generate_positions
-        #     self.robot.rotate_gripper_90deg()
 
-    def speak(self, duration):
-        self.robot.send_gripper_command(180)  # 0-255
-        end_time = time() + duration
-        while time() < end_time:
+    async def speaking_task(self):
+        logger.info("Starting speak")
+        while True:
             self.robot.send_gripper_command(180)
-            sleep(0.25)
+            await asyncio.sleep(0.25)
             self.robot.send_gripper_command(255)
-            sleep(0.25)
-        self.robot.open_gripper()
+            await asyncio.sleep(0.25)
+
+    def start_speak(self):
+        self.speak_task = asyncio.create_task(self.speaking_task())
+
+    def stop_speak(self):
+        logger.info("Stopping speak")
+        if self.speak_task:
+            self.speak_task.cancel()
+            self.speak_task = None
+
+    def speak_for_duration(self, duration):
+        self.start_speak()
+        sleep(duration)
+        self.stop_speak()
 
     def move_piece(self, pos_A, pos_B):
         logger.info(f"Moving {pos_A} to {pos_B}")
