@@ -47,10 +47,10 @@ class RobotController:
 
         logger.info(f"Robot is assuming the emotion: {emotion.value}")
         self.move([emotion.value], mode)
-        sleep(4)
-        if emotion is Emotions.WATCH_PLAYER or emotion is Emotions.WATCH_BOARD:
-            # TODO: remove and replace with pose in generate_positions
-            self.robot.rotate_gripper_90deg()
+        # sleep(3)
+        # if emotion is Emotions.WATCH_PLAYER or emotion is Emotions.WATCH_BOARD:
+        #     # TODO: remove and replace with pose in generate_positions
+        #     self.robot.rotate_gripper_90deg()
 
     def speak(self, duration):
         self.robot.send_gripper_command(180)  # 0-255

@@ -17,11 +17,8 @@ board = {
     "hover": {"pose": True, "values": [center_x, center_y, 0.4, 0, -3.14, 0]},
     "discard": {"pose": True, "values": [center_x - 0.3, center_y, 0.2, 0, -3.14, 0]},
     # Emotions
-    "watch_board": {
-        "pose": True,
-        "values": [center_x, center_y, 0.4, 0, -3.14, 0],
-    },
-    "watch_player": {"pose": True, "values": [center_x, center_y, 0.4, 1.57, 0, 0]},
+    "watch_board": {"pose": True, "values": [center_x, center_y, 0.4, 2.2, 2.2, 0]},
+    "watch_player": {"pose": True, "values": [center_x, center_y, 0.5, 1.2, 1.2, -1.2]},
 }
 
 if __name__ == "__main__":

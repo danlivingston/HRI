@@ -53,7 +53,7 @@ class RobotArm:
         )
         prefix = "p" if pose else ""
         # TODO: change time and acceleration
-        cmd = str.encode(f"move{mode}({prefix}[{values}],a=0.25,t=3)\n")
+        cmd = str.encode(f"move{mode}({prefix}[{values}],a=0.25,t=2)\n")
         self.socket_ur.send(cmd)
         logger.debug(f"sent command: {cmd}")
 

@@ -16,9 +16,9 @@ if __name__ == "__main__":
 
     robot = RobotController()
     # speak demo
-    # robot.assume_emotion(Emotions.WATCH_PLAYER)
-    # sleep(5)
-    # robot.speak(10)
+    robot.assume_emotion(Emotions.WATCH_PLAYER)
+    sleep(3)
+    robot.speak(30)
 
     # move discard demo
     # robot.move_piece("A1", "H8")
