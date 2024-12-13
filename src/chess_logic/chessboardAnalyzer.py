@@ -310,11 +310,7 @@ class ChessCubeAnalyzer(threading.Thread):
             self.logger.info("Cube positions updated after comparison.")
 
             # Return only valid movement strings (excluding removals if they are movement targets)
-            return (
-                ", ".join(movement_strings)
-                if movement_strings
-                else "No movement detected."
-            )
+            return ", ".join(movement_strings) if movement_strings else None
 
     def run(self):
         """

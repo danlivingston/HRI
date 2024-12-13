@@ -8,6 +8,10 @@ class VoiceRecognizer:
     def listen_for_start(self, speaker):
         print("Waiting for the 'start' command. Please say 'start' to begin.")
 
+        speaker.speak(
+            "Hello, my name is Chessica. We are going to learn the london system."
+        )
+
         while True:
             with sr.Microphone() as source:
                 speaker.speak("Say 'start' to begin.")

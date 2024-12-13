@@ -27,12 +27,12 @@ class RobotController:
         self.robot.open_gripper()
         sleep(3.1)
 
-        logger.debug("Moving hover")
-        self.assume_emotion(Emotions.HOVER)
+        logger.debug("Moving watch player")
+        self.assume_emotion(Emotions.WATCH_PLAYER)
         sleep(3.1)
         logger.info("RobotController ready")
 
-    def move(self, board_path: list, mode="l"):
+    def move(self, board_path: list, mode="l", time=2):
         pos_base = BOARD_POSITIONS
         for path in board_path:
             try:
@@ -42,7 +42,7 @@ class RobotController:
                 return
         pos_values = pos_base["values"]
         pos_is_pose = pos_base["pose"]
-        self.robot.send_move_command(pos_values, mode=mode, pose=pos_is_pose)
+        self.robot.send_move_command(pos_values, mode=mode, pose=pos_is_pose, t=time)
 
     def assume_emotion(self, emotion: Emotions, mode="l"):
         if not isinstance(emotion, Emotions):
@@ -56,7 +56,9 @@ class RobotController:
         while True:
             self.robot.send_gripper_command(180)
             await asyncio.sleep(0.25)
+            # sleep(0.25)
             self.robot.send_gripper_command(255)
+            # sleep(0.25)
             await asyncio.sleep(0.25)
 
     def start_speak(self):
@@ -75,26 +77,31 @@ class RobotController:
 
     def move_piece(self, pos_A, pos_B):
         logger.info(f"Moving {pos_A} to {pos_B}")
-        # TODO: Verify key exists, A1-H8
-        self.move([pos_A, "hover"])
-        sleep(2)
-        self.move([pos_A, "pickup"])
-        sleep(0.5)
+        # Verify key exists, A1-H8
+        if pos_A not in BOARD_POSITIONS or pos_B not in BOARD_POSITIONS:
+            logger.error(f"Invalid position: {pos_A} or {pos_B}")
+            return
+
+        self.move([pos_A, "hover"], time=2)
+        sleep(2.1)
+        self.move([pos_A, "pickup"], time=1)
+        sleep(1.1)
         self.robot.close_gripper()
         sleep(0.5)
-        self.move([pos_A, "hover"])
-        sleep(0.5)
-        self.move([pos_B, "hover"])
-        sleep(2)
-        self.move([pos_B, "place"])
-        sleep(0.5)
+        self.move([pos_A, "hover"], time=1)
+        sleep(1.1)
+        self.move([pos_B, "hover"], time=2)
+        sleep(2.1)
+        self.move([pos_B, "place"], time=1)
+        sleep(1.1)
         self.robot.half_open_gripper()
         sleep(0.5)
-        self.move([pos_B, "hover"])
+        self.move([pos_B, "hover"], time=1)
         self.robot.open_gripper()
-        sleep(0.5)
-        self.move(["hover"])
-        sleep(2)
+        sleep(1.1)
+        # self.move(["hover"], time=2)
+        self.assume_emotion(Emotions.WATCH_PLAYER)
+        sleep(2.1)
 
     # ! Pieces start to stack an overflow eventually, TODO: multiple discard positions?
     def discard_piece(self, from_pos):

@@ -9,6 +9,8 @@ import random
 from chess_logic.voice_recognizer import VoiceRecognizer
 from chess_logic.chessboardAnalyzer import ChessCubeAnalyzer
 import time
+from robot.controller import RobotController
+from robot.emotions import Emotions
 
 
 class Game:
@@ -22,13 +24,14 @@ class Game:
     }
 
     def __init__(self):
+        self.robot = RobotController()
         self.board = chess.Board()
         self.speaker = Speaker()
         self.opening_line = random.choice(openings)
         self.voice_recognizer = VoiceRecognizer()
         self.is_listening_for_help = False
         self.chessboard_analyzer = ChessCubeAnalyzer(
-            config_path=r"../resources/config/settings.yaml", debug=True
+            config_path=r"../resources/config/settings.yaml", debug=False
         )
 
     def update_board(self, move):
@@ -107,15 +110,26 @@ class Game:
                     return user_input  # gültiger, erwarteter Zug wird zurückgegeben
                 else:
                     print("Das ist nicht der richtige Zug. Versuche es erneut.")
+                    self.is_listening_for_help = False
+                    t1.join()
                     self.speaker.speak(
-                        "That's not the correct move. Try again or ask for help."
+                        "That's not the correct move. Wait, I will reset it for you."
                     )
+                    from_square = user_input[2:].upper()
+                    to_square = user_input[:2].upper()
+                    self.robot.move_piece(from_square, to_square)
+                    self.chessboard_analyzer.initial()
+                    self.speaker.speak("Try again or ask for help.")
         else:
             # Automatischer Zug für Schwarz
             black_move = self.opening_line.moves_uci[
                 self.opening_line.current_move_index
             ]
             print(f"Schwarzer Zug: {black_move}")
+            from_square = black_move[:2].upper()
+            to_square = black_move[2:].upper()
+            self.robot.move_piece(from_square, to_square)
+            self.chessboard_analyzer.initial()
             return black_move
 
     def listen_for_start(self):
@@ -142,6 +156,7 @@ class Game:
 
             if movement == "obstacle detected":
                 print("Obstacle detected. Cannot compare moves.")
+                # self.robot.assume_emotion(Emotions.WATCH_BOARD)
             elif movement == "initial positions not set":
                 print(
                     "Initial positions not set. Please set initial positions first by pressing 'i'."
@@ -150,7 +165,7 @@ class Game:
                 print(
                     "Updated positions not set. Please update positions first by pressing 'u'."
                 )
-            elif movement:
+            elif movement is not None:
                 print(f"Movement detected: {movement}")
                 has_moved = True
 
@@ -158,13 +173,13 @@ class Game:
 
     def play(self):
         self.print_board_and_save_svg()
-        self.chessboard_analyzer.initial()
 
         while not self.board.is_game_over():
             if self.board.is_game_over():
                 break
 
             # Weisser Zug - Benutzer muss den korrekten Zug eingeben
+            self.chessboard_analyzer.initial()
             white_move = self.get_move_input(is_white=True)
 
             if not self.update_board(white_move):
